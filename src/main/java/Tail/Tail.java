@@ -3,7 +3,6 @@ package Tail;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.LinkedList;
 
 public class Tail {
