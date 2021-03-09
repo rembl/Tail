@@ -6,12 +6,13 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TailLauncher {
 
     @Option(name = "-o", metaVar = "OutputName", usage = "File output name")
-    private String outputName;
+    private String outputName = "";
 
     @Option(name = "-c", metaVar = "LastCharacters", usage = "Last num characters")
     private Integer c;
@@ -20,8 +21,7 @@ public class TailLauncher {
     private Integer n;
 
     @Argument(metaVar = "InputFiles", usage = "Files input names")
-    private List<String> inputFiles;
-
+    private List<String> inputFiles = new ArrayList<>();
 
     public void launch(String[] args) {
 
@@ -37,7 +37,7 @@ public class TailLauncher {
         }
 
         try {
-            Writer writer;
+            BufferedWriter writer;
             if (outputName.equals("")) {
                 writer = new BufferedWriter(new OutputStreamWriter(System.out));
             } else writer = new BufferedWriter(new FileWriter(outputName));
@@ -61,7 +61,7 @@ public class TailLauncher {
         }
     }
 
-    public void hopper(BufferedReader reader, Writer writer) throws IOException {
+    public void hopper(BufferedReader reader, BufferedWriter writer) throws IOException {
         if (c == null && n == null) {
             Tail.flag = "lines";
             Tail.number = 10;
@@ -75,12 +75,12 @@ public class TailLauncher {
 
         if (c == null && n > 0) {
             Tail.flag = "lines";
-            Tail.number = c;
+            Tail.number = n;
         }
 
         if (c > 0 && n == null) {
             Tail.flag = "chars";
-            Tail.number = n;
+            Tail.number = c;
         }
 
         else System.out.println("Error: illegal option\n");

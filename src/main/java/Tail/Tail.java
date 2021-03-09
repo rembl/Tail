@@ -1,16 +1,21 @@
 package Tail;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.LinkedList;
 
 public class Tail {
 
+    public static void main(String[] args) {
+        new TailLauncher().launch(args);
+    }
+
     static String flag;
     static Integer number;
 
-    public static void cutter(BufferedReader reader, Writer writer) throws IOException {
+    public static void cutter(BufferedReader reader, BufferedWriter writer) throws IOException {
 
         if (flag.equals("lines")) {
             LinkedList<String> lines = new LinkedList<>();
@@ -25,7 +30,8 @@ public class Tail {
                 writer.write(each + "\n");
             }
 
-            writer.flush();
+            writer.close();
+
         }
 
         else {
@@ -41,11 +47,8 @@ public class Tail {
                 writer.write(each);
             }
 
-            writer.flush();
-        }
-    }
+            writer.close();
 
-    public static void main(String[] args) {
-        new TailLauncher().launch(args);
+        }
     }
 }
