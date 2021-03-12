@@ -40,8 +40,8 @@ public class Tail {
 
         }
 
-        writer.close();
         file.close();
+        writer.close();
 
     }
 
