@@ -1,7 +1,8 @@
 package Tail;
 
 import java.io.*;
-import org.apache.commons.io.input.ReversedLinesFileReader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Tail {
 
@@ -13,38 +14,66 @@ public class Tail {
     Flag flag;
     Integer number;
 
-    public static void fileCutter(String fileName, BufferedWriter writer, Tail Tail) throws IOException {
+    public static void fileCutter(String fileName, BufferedWriter writer, Tail tail) throws IOException {
 
         RandomAccessFile file = new RandomAccessFile(fileName, "r");
 
-        if (Tail.flag.equals(Flag.LINES)) {
+        if (tail.flag.equals(Flag.LINES)) {
             long pointer = file.length() - 1;
             int lineFeed = 0;
-            while (pointer > 0 && lineFeed < Tail.number) {
+            while (pointer > 0 && lineFeed < tail.number) {
                 file.seek(pointer--);
-                if (file.read() == 10) lineFeed++;
+                if (file.read() == '\n') lineFeed++;
             }
             while (pointer <= file.length()){
                 writer.write(file.read());
                 pointer++;
+            }
+
+        }
+
+        else {
+            for (long pointer = file.length() - tail.number + 1; pointer <= file.length(); pointer++) {
+                file.seek(pointer);
+                writer.write(file.read());
+            }
+
+        }
+
+        writer.close();
+        file.close();
+
+    }
+
+    public static void systemCutter(BufferedReader reader, BufferedWriter writer, Tail Tail) throws IOException {
+
+        List<String> input = new ArrayList<>();
+        while(true) {
+            String line = reader.readLine();
+            if (line.equals("")) break;
+            input.add(line);
+        }
+
+        reader.close();
+
+        if (Tail.flag.equals(Flag.LINES)) {
+            while (Tail.number >= 0) {
+                writer.write(input.get(input.size() - Tail.number));
+                Tail.number--;
             }
         }
 
         else {
-            long pointer = file.length();
-            int chars = 1;
-            while (pointer > 0 && chars < Tail.number) {
-                file.seek(pointer--);
-                chars++;
-            }
-            while (pointer <= file.length()){
-                writer.write(file.read());
-                pointer++;
-            }
+            StringBuilder string = new StringBuilder();
+            int index = input.size() - 1;
+            do {
+                string.append(input.get(index));
+                index--;
+            } while (string.length() < Tail.number);
+            writer.write(String.valueOf(string.replace(0, string.length() - Tail.number, "")));
         }
-    }
 
-    public static void systemCutter(BufferedReader reader, BufferedWriter writer) throws IOException {
+        writer.close();
 
     }
 }

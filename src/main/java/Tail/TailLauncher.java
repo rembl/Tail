@@ -76,7 +76,7 @@ public class TailLauncher {
 
             if (inputFiles.isEmpty()) {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-                systemCutter(reader, writer);
+                systemCutter(reader, writer, tail);
             }
 
             for (String file : inputFiles) {
