@@ -1,53 +1,50 @@
 package Tail;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.util.LinkedList;
+import java.io.*;
+import org.apache.commons.io.input.ReversedLinesFileReader;
 
 public class Tail {
 
-    public static void main(String[] args) {
-        new TailLauncher().launch(args);
+    public enum Flag {
+        LINES,
+        CHARS
     }
 
-    static String flag;
-    static Integer number;
+    Flag flag;
+    Integer number;
 
-    public static void cutter(BufferedReader reader, BufferedWriter writer) throws IOException {
+    public static void fileCutter(String fileName, BufferedWriter writer, Tail Tail) throws IOException {
 
-        if (flag.equals("lines")) {
-            LinkedList<String> lines = new LinkedList<>();
-            String line = reader.readLine();
-            while (!line.isEmpty()) {
-                if (lines.size() == number) lines.pollFirst();
-                lines.add(line);
-                line = reader.readLine();
+        RandomAccessFile file = new RandomAccessFile(fileName, "r");
+
+        if (Tail.flag.equals(Flag.LINES)) {
+            long pointer = file.length() - 1;
+            int lineFeed = 0;
+            while (pointer > 0 && lineFeed < Tail.number) {
+                file.seek(pointer--);
+                if (file.read() == 10) lineFeed++;
             }
-
-            for (String each : lines) {
-                writer.write(each + "\n");
+            while (pointer <= file.length()){
+                writer.write(file.read());
+                pointer++;
             }
-
-            writer.close();
-
         }
 
         else {
-            LinkedList<String> chars = new LinkedList<>();
-            String character = String.valueOf(reader.read());
-            while (!character.isEmpty()) {
-                if (chars.size() == number) chars.pollFirst();
-                chars.add(character);
-                character = String.valueOf(reader.read());
+            long pointer = file.length();
+            int chars = 1;
+            while (pointer > 0 && chars < Tail.number) {
+                file.seek(pointer--);
+                chars++;
             }
-
-            for (String each : chars) {
-                writer.write(each);
+            while (pointer <= file.length()){
+                writer.write(file.read());
+                pointer++;
             }
-
-            writer.close();
-
         }
+    }
+
+    public static void systemCutter(BufferedReader reader, BufferedWriter writer) throws IOException {
+
     }
 }

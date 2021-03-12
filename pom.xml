@@ -14,6 +14,11 @@
             <artifactId>args4j-maven-plugin</artifactId>
             <version>2.33</version>
         </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.6</version>
+        </dependency>
     </dependencies>
 
     <properties>
@@ -30,7 +35,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>Tail.Tail</mainClass>
+                            <mainClass>Tail.TailLauncher</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -49,7 +54,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>Tail.Tail</mainClass>
+                            <mainClass>Tail.TailLauncher</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

@@ -9,10 +9,17 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static Tail.Tail.fileCutter;
+import static Tail.Tail.systemCutter;
+
 public class TailLauncher {
 
+    public static void main(String[] args) {
+        new TailLauncher().launch(args);
+    }
+
     @Option(name = "-o", metaVar = "OutputName", usage = "File output name")
-    private String outputName = "";
+    private final String outputName = "";
 
     @Option(name = "-c", metaVar = "LastCharacters", usage = "Last num characters")
     private Integer c;
@@ -21,7 +28,7 @@ public class TailLauncher {
     private Integer n;
 
     @Argument(metaVar = "InputFiles", usage = "Files input names")
-    private List<String> inputFiles = new ArrayList<>();
+    private final List<String> inputFiles = new ArrayList<>();
 
     public void launch(String[] args) {
 
@@ -36,35 +43,11 @@ public class TailLauncher {
             return;
         }
 
-        try {
-            BufferedWriter writer;
-            if (outputName.equals("")) {
-                writer = new BufferedWriter(new OutputStreamWriter(System.out));
-            } else writer = new BufferedWriter(new FileWriter(outputName));
+        Tail tail = new Tail();
 
-            if (inputFiles.isEmpty()) {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-                hopper(reader, writer);
-            }
-
-            for (String file : inputFiles) {
-                writer.write(file + "\n");
-                hopper(new BufferedReader(new FileReader(file)), writer);
-                writer.write("\n");
-            }
-
-            writer.close();
-
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-            return;
-        }
-    }
-
-    public void hopper(BufferedReader reader, BufferedWriter writer) throws IOException {
         if (c == null && n == null) {
-            Tail.flag = "lines";
-            Tail.number = 10;
+            tail.flag = Tail.Flag.LINES;
+            tail.number = 10;
         }
 
         if (c != null && n != null) {
@@ -74,17 +57,39 @@ public class TailLauncher {
         }
 
         if (c == null && n > 0) {
-            Tail.flag = "lines";
-            Tail.number = n;
+            tail.flag = Tail.Flag.LINES;
+            tail.number = n;
         }
 
         if (c > 0 && n == null) {
-            Tail.flag = "chars";
-            Tail.number = c;
+            tail.flag = Tail.Flag.CHARS;
+            tail.number = c;
         }
 
         else System.out.println("Error: illegal option\n");
 
-        Tail.cutter(reader, writer);
+        try {
+            BufferedWriter writer;
+            if (outputName.isEmpty()) {
+                writer = new BufferedWriter(new OutputStreamWriter(System.out));
+            } else writer = new BufferedWriter(new FileWriter(outputName));
+
+            if (inputFiles.isEmpty()) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+                systemCutter(reader, writer);
+            }
+
+            for (String file : inputFiles) {
+                writer.write(file + "\n");
+                fileCutter(file, writer, tail);
+                writer.write("\n");
+            }
+
+            writer.close();
+
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+            return;
+        }
     }
 }
