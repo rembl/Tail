@@ -1,8 +1,8 @@
 package Tail;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayDeque;
+
 
 public class Tail {
 
@@ -47,32 +47,32 @@ public class Tail {
 
     public static void systemCutter(BufferedReader reader, BufferedWriter writer, Tail Tail) throws IOException {
 
-        List<String> input = new ArrayList<>();
-        while(true) {
-            String line = reader.readLine();
-            if (line.equals("")) break;
-            input.add(line);
-        }
-
-        reader.close();
-
         if (Tail.flag.equals(Flag.LINES)) {
-            while (Tail.number >= 0) {
-                writer.write(input.get(input.size() - Tail.number));
-                Tail.number--;
+            ArrayDeque<String> input = new ArrayDeque<>();
+            while(true) {
+                String line = reader.readLine();
+                if (line.isEmpty()) break;
+                if (input.size() == Tail.number) input.pollFirst();
+                input.add(line);
             }
+
+            for (String each : input) writer.write(each);
         }
 
         else {
-            StringBuilder string = new StringBuilder();
-            int index = input.size() - 1;
-            do {
-                string.insert(0, input.get(index));
-                index--;
-            } while (string.length() < Tail.number);
-            writer.write(String.valueOf(string.replace(0, string.length() - Tail.number, "")));
+            StringBuilder input = new StringBuilder();
+            while(true) {
+                String line = reader.readLine();
+                if (line.isEmpty()) break;
+                input.append(line);
+                if (input.length() >= Tail.number) input.replace(0, input.length() - Tail.number, "");
+            }
+
+            writer.write(String.valueOf(input));
+
         }
 
+        reader.close();
         writer.close();
 
     }
