@@ -67,7 +67,7 @@ public class Tail {
             StringBuilder string = new StringBuilder();
             int index = input.size() - 1;
             do {
-                string.append(input.get(index));
+                string.insert(0, input.get(index));
                 index--;
             } while (string.length() < Tail.number);
             writer.write(String.valueOf(string.replace(0, string.length() - Tail.number, "")));
