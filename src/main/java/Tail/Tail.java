@@ -17,63 +17,87 @@ public class Tail {
     public static void fileCutter(String fileName, BufferedWriter writer, Tail tail) throws IOException {
 
         RandomAccessFile file = new RandomAccessFile(fileName, "r");
+        long pointer;
 
         if (tail.flag.equals(Flag.LINES)) {
-            long pointer = file.length() - 1;
             int lineFeed = 0;
-            while (pointer > 0 && lineFeed < tail.number) {
-                file.seek(pointer--);
+            pointer = file.length();
+            file.seek(pointer);
+
+            while (pointer > -1 && lineFeed < tail.number) {
                 if (file.read() == '\n') lineFeed++;
-            }
-            while (pointer <= file.length()){
-                writer.write(file.read());
-                pointer++;
+                file.seek(pointer--);
             }
 
+            if (pointer != -1) pointer += 3;
+            else pointer += 1;
+            file.seek(pointer);
+
+            if (lineFeed < tail.number - 1) {
+                System.out.println("Error: file not long enough");
+                return;
+            }
         }
 
         else {
-            for (long pointer = file.length() - tail.number + 1; pointer <= file.length(); pointer++) {
-                file.seek(pointer);
-                writer.write(file.read());
+            if (tail.number > file.length()) {
+                System.out.println("Error: file not long enough");
+                return;
             }
 
+            else {
+                pointer = file.length() - tail.number;
+                file.seek(pointer);
+            }
         }
 
+        while (pointer < file.length()) {
+            writer.write(file.read());
+            pointer++;
+        }
+
+        writer.write("\n");
         file.close();
-        writer.close();
 
     }
 
-    public static void systemCutter(BufferedReader reader, BufferedWriter writer, Tail Tail) throws IOException {
+    public static void systemCutter(String terminator, BufferedReader reader, BufferedWriter writer, Tail Tail) throws IOException {
+
+        ArrayDeque<String> input = new ArrayDeque<>();
+
+        String line = reader.readLine();
 
         if (Tail.flag.equals(Flag.LINES)) {
-            ArrayDeque<String> input = new ArrayDeque<>();
-            while(true) {
-                String line = reader.readLine();
-                if (line.isEmpty()) break;
-                if (input.size() == Tail.number) input.pollFirst();
+
+            while(!line.equals(terminator)) {
                 input.add(line);
+                line = reader.readLine();
+                if (input.size() == Tail.number && !line.equals(terminator)) input.pollFirst();
             }
 
-            for (String each : input) writer.write(each);
+            if (input.size() < Tail.number) System.out.println("Error: file not long enough");
+            else for (String each : input) writer.write(each + "\n");
         }
 
         else {
-            StringBuilder input = new StringBuilder();
-            while(true) {
-                String line = reader.readLine();
-                if (line.isEmpty()) break;
-                input.append(line);
-                if (input.length() >= Tail.number) input.replace(0, input.length() - Tail.number, "");
+
+            while(!line.equals(terminator)) {
+                for (char symbol : line.toCharArray()) {
+                    input.add(String.valueOf(symbol));
+                    if (input.size() > Tail.number) input.pollFirst();
+                }
+
+                line = reader.readLine();
+                if (!line.equals(terminator)) input.add("\n");
+                if (input.size() > Tail.number) input.pollFirst();
             }
 
-            writer.write(String.valueOf(input));
-
+            if (input.size() < Tail.number) System.out.println("Error: file not long enough");
+            else for (String each : input) writer.write(each);
+            writer.write("\n");
         }
 
         reader.close();
-        writer.close();
 
     }
 }

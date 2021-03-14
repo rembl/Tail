@@ -6,7 +6,6 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.List;
 
 import static Tail.Tail.fileCutter;
@@ -19,7 +18,7 @@ public class TailLauncher {
     }
 
     @Option(name = "-o", metaVar = "OutputName", usage = "File output name")
-    private final String outputName = "";
+    private String outputName;
 
     @Option(name = "-c", metaVar = "LastCharacters", usage = "Last num characters")
     private Integer c;
@@ -28,7 +27,7 @@ public class TailLauncher {
     private Integer n;
 
     @Argument(metaVar = "InputFiles", usage = "Files input names")
-    private final List<String> inputFiles = new ArrayList<>();
+    private List<String> inputFiles;
 
     public void launch(String[] args) {
 
@@ -50,18 +49,18 @@ public class TailLauncher {
             tail.number = 10;
         }
 
-        if (c != null && n != null) {
+        else if (c != null && n != null) {
             System.out.println("Error: choose one of the options\n");
             System.out.println("tail [-c num|-n num] [-o ofile] file0 file1 file2 …\n");
             return;
         }
 
-        if (c == null && n > 0) {
+        else if (c == null && n > 0) {
             tail.flag = Tail.Flag.LINES;
             tail.number = n;
         }
 
-        if (c > 0 && n == null) {
+        else if (n == null && c > 0) {
             tail.flag = Tail.Flag.CHARS;
             tail.number = c;
         }
@@ -70,26 +69,30 @@ public class TailLauncher {
 
         try {
             BufferedWriter writer;
-            if (outputName.isEmpty()) {
+            if (outputName == null) {
                 writer = new BufferedWriter(new OutputStreamWriter(System.out));
             } else writer = new BufferedWriter(new FileWriter(outputName));
 
-            if (inputFiles.isEmpty()) {
+            if (inputFiles == null) {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-                systemCutter(reader, writer, tail);
+                System.out.println("Enter word to terminate input:");
+                String terminator = reader.readLine();
+                System.out.println("Enter the text:");
+                systemCutter(terminator, reader, writer, tail);
             }
 
-            for (String file : inputFiles) {
-                writer.write(file + "\n");
-                fileCutter(file, writer, tail);
-                writer.write("\n");
+            else if (inputFiles.size() == 1) fileCutter(inputFiles.get(0), writer, tail);
+            else {
+                for (String file : inputFiles) {
+                    writer.write(file + "\n");
+                    fileCutter(file, writer, tail);
+                }
             }
 
             writer.close();
 
         } catch (IOException e) {
             System.err.println(e.getMessage());
-            return;
         }
     }
 }
