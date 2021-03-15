@@ -4,7 +4,6 @@ import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 
 public class TailTest extends TestCase {
 
@@ -67,7 +66,7 @@ public class TailTest extends TestCase {
         tail1.systemCutter(reader1, writer1);
         writer1.close();
 
-        assertEquals(FileUtils.readLines(expected1, StandardCharsets.UTF_8), FileUtils.readLines(actual1,  StandardCharsets.UTF_8));
+        assertTrue(FileUtils.contentEqualsIgnoreEOL(expected1, actual1, null));
         actual1.deleteOnExit();
     }
 
@@ -94,7 +93,7 @@ public class TailTest extends TestCase {
         tail2.systemCutter(reader2, writer2);
         writer2.close();
 
-        assertEquals(FileUtils.readLines(expected2, StandardCharsets.UTF_8), FileUtils.readLines(actual2,  StandardCharsets.UTF_8));
+        assertTrue(FileUtils.contentEqualsIgnoreEOL(expected2, actual2, null));
         actual2.deleteOnExit();
     }
 }
