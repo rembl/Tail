@@ -8,9 +8,6 @@ import org.kohsuke.args4j.Option;
 import java.io.*;
 import java.util.List;
 
-import static Tail.Tail.fileCutter;
-import static Tail.Tail.systemCutter;
-
 public class TailLauncher {
 
     public static void main(String[] args) {
@@ -45,8 +42,8 @@ public class TailLauncher {
         Tail tail = new Tail();
 
         if (c == null && n == null) {
-            tail.flag = Tail.Flag.LINES;
-            tail.number = 10;
+            Tail.flag = Tail.Flag.LINES;
+            Tail.number = 10;
         }
 
         else if (c != null && n != null) {
@@ -56,13 +53,13 @@ public class TailLauncher {
         }
 
         else if (c == null && n > 0) {
-            tail.flag = Tail.Flag.LINES;
-            tail.number = n;
+            Tail.flag = Tail.Flag.LINES;
+            Tail.number = n;
         }
 
         else if (n == null && c > 0) {
-            tail.flag = Tail.Flag.CHARS;
-            tail.number = c;
+            Tail.flag = Tail.Flag.CHARS;
+            Tail.number = c;
         }
 
         else System.out.println("Error: illegal option\n");
@@ -75,17 +72,16 @@ public class TailLauncher {
 
             if (inputFiles == null) {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-                System.out.println("Enter word to terminate input:");
-                String terminator = reader.readLine();
+                System.out.println("To stop input type ^D");
                 System.out.println("Enter the text:");
-                systemCutter(terminator, reader, writer, tail);
+                tail.systemCutter(reader, writer);
             }
 
-            else if (inputFiles.size() == 1) fileCutter(inputFiles.get(0), writer, tail);
+            else if (inputFiles.size() == 1) tail.fileCutter(inputFiles.get(0), writer);
             else {
                 for (String file : inputFiles) {
                     writer.write(file + "\n");
-                    fileCutter(file, writer, tail);
+                    tail.fileCutter(file, writer);
                 }
             }
 

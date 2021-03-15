@@ -11,45 +11,35 @@ public class Tail {
         CHARS
     }
 
-    Flag flag;
-    Integer number;
+    static Flag flag;
+    static Integer number;
 
-    public static void fileCutter(String fileName, BufferedWriter writer, Tail tail) throws IOException {
+    public void fileCutter(String fileName, BufferedWriter writer) throws IOException {
 
         RandomAccessFile file = new RandomAccessFile(fileName, "r");
         long pointer;
 
-        if (tail.flag.equals(Flag.LINES)) {
+        if (Tail.flag.equals(Flag.LINES)) {
             int lineFeed = 0;
             pointer = file.length();
             file.seek(pointer);
 
-            while (pointer > -1 && lineFeed < tail.number) {
+            while (pointer > -1 && lineFeed < Tail.number) {
                 if (file.read() == '\n') lineFeed++;
                 file.seek(pointer--);
             }
 
             if (pointer != -1) pointer += 3;
             else pointer += 1;
-            file.seek(pointer);
-
-            if (lineFeed < tail.number - 1) {
-                System.out.println("Error: file not long enough");
-                return;
-            }
         }
 
         else {
-            if (tail.number > file.length()) {
-                System.out.println("Error: file not long enough");
-                return;
-            }
-
-            else {
-                pointer = file.length() - tail.number;
-                file.seek(pointer);
-            }
+            if (Tail.number < file.length()) {
+                pointer = file.length() - Tail.number;
+            } else pointer = 0;
         }
+
+        file.seek(pointer);
 
         while (pointer < file.length()) {
             writer.write(file.read());
@@ -61,7 +51,7 @@ public class Tail {
 
     }
 
-    public static void systemCutter(String terminator, BufferedReader reader, BufferedWriter writer, Tail Tail) throws IOException {
+    public void systemCutter(BufferedReader reader, BufferedWriter writer) throws IOException {
 
         ArrayDeque<String> input = new ArrayDeque<>();
 
@@ -69,31 +59,29 @@ public class Tail {
 
         if (Tail.flag.equals(Flag.LINES)) {
 
-            while(!line.equals(terminator)) {
+            while(line != null) {
                 input.add(line);
                 line = reader.readLine();
-                if (input.size() == Tail.number && !line.equals(terminator)) input.pollFirst();
+                if (input.size() == Tail.number && line != null) input.pollFirst();
             }
 
-            if (input.size() < Tail.number) System.out.println("Error: file not long enough");
-            else for (String each : input) writer.write(each + "\n");
+            for (String each : input) writer.write(each + "\n");
         }
 
         else {
 
-            while(!line.equals(terminator)) {
+            while(line != null) {
                 for (char symbol : line.toCharArray()) {
                     input.add(String.valueOf(symbol));
                     if (input.size() > Tail.number) input.pollFirst();
                 }
 
                 line = reader.readLine();
-                if (!line.equals(terminator)) input.add("\n");
+                if (line != null) input.add("\n");
                 if (input.size() > Tail.number) input.pollFirst();
             }
 
-            if (input.size() < Tail.number) System.out.println("Error: file not long enough");
-            else for (String each : input) writer.write(each);
+            for (String each : input) writer.write(each);
             writer.write("\n");
         }
 
